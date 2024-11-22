@@ -10,6 +10,21 @@ type part struct {
 	args []interface{}
 }
 
+func dedupe(parts []Sqlizer) []Sqlizer {
+	m := map[string]struct{}{}
+
+	deduped := make([]Sqlizer, 0, len(parts))
+	for _, p := range parts {
+		v := fmt.Sprintf("%v", p)
+		if _, ok := m[v]; !ok {
+			deduped = append(deduped, p)
+			m[v] = struct{}{}
+		}
+	}
+
+	return deduped
+}
+
 func newPart(pred interface{}, args ...interface{}) Sqlizer {
 	return &part{pred, args}
 }

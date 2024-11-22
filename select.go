@@ -101,6 +101,7 @@ func (d *selectData) toSqlRaw() (sqlStr string, args []interface{}, err error) {
 	}
 
 	if len(d.Joins) > 0 {
+		d.Joins = dedupe(d.Joins)
 		sql.WriteString(" ")
 		args, err = appendToSql(d.Joins, sql, " ", args)
 		if err != nil {
@@ -272,7 +273,8 @@ func (b SelectBuilder) RemoveColumns() SelectBuilder {
 // Column adds a result column to the query.
 // Unlike Columns, Column accepts args which will be bound to placeholders in
 // the columns string, for example:
-//   Column("IF(col IN ("+squirrel.Placeholders(3)+"), 1, 0) as col", 1, 2, 3)
+//
+//	Column("IF(col IN ("+squirrel.Placeholders(3)+"), 1, 0) as col", 1, 2, 3)
 func (b SelectBuilder) Column(column interface{}, args ...interface{}) SelectBuilder {
 	return builder.Append(b, "Columns", newPart(column, args...)).(SelectBuilder)
 }
